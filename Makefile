@@ -2,6 +2,7 @@ CC := g++
 PREFIX = .
 INCS :=  $(PREFIX)
 CFLAGS := -Wall -Wunreachable-code -Werror -Wsign-compare -g -fPIC -std=c++11
+LIBS = -lreadline
 SOURCE := $(wildcard  *.cpp ../6A/csv_handler.cpp)
 OBJS := $(patsubst %.cpp, %.o, $(SOURCE))
 TARGETS=yaush

@@ -5,6 +5,8 @@
     > Created Time: Sun 17 May 2015 03:22:24 PM CST
  ************************************************************************/
 #include "yaush.h"
+#include <readline/readline.h>
+#include <readline/history.h>
 
 namespace ghk
 {
