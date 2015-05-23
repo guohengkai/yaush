@@ -20,7 +20,7 @@ Parser::Parser()
 
 }
 
-FuncStatus Parser::Parse(const vector<string> &tokens,
+FuncStatus Parser::Parse(const vector<Token> &tokens,
         vector<CommandGroup> *command_list)
 {
     return FuncStatus::Error;

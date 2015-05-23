@@ -13,7 +13,7 @@ class ReadlineHandler
 {
 public:
     ReadlineHandler();
-    char* Gets();
+    char* Gets(bool is_reset);
 
 private:
     char *line_read_;

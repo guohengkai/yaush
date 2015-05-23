@@ -7,7 +7,6 @@
 #ifndef YAUSH_PARSER_H_
 #define YAUSH_PARSER_H_
 
-#include <string>
 #include <vector>
 #include "command.h"
 #include "common.h"
@@ -18,7 +17,7 @@ class Parser
 {
 public:
     Parser();
-    FuncStatus Parse(const std::vector<std::string> &tokens,
+    FuncStatus Parse(const std::vector<Token> &tokens,
             std::vector<CommandGroup> *command_list);
 };
 }  // namespace ghk

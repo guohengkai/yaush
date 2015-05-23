@@ -33,7 +33,7 @@ void Yaush::Loop()
 
     while (true)
     {
-        line_read = handler_.Gets();
+        line_read = handler_.Gets(line.empty());
         if (!line_read)  // EOF
         {
             printf("\n");
@@ -41,14 +41,10 @@ void Yaush::Loop()
         }
         else if (*line_read)  // Not empty string
         {
-            line += string(line_read);
-            if (Analysis(string(line_read)))
+            line += string(line_read) + '\n';
+            if (Analysis(line) != FuncStatus::WaitInput)
             {
                 line = "";
-            }
-            else
-            {
-                line += '\n';
             }
         }
     }
@@ -61,9 +57,9 @@ FuncStatus Yaush::Analysis(const string &line)
     Executor executor;
 
     // Lexical analysis
-    vector<string> tokens;
+    vector<Token> tokens;
     FuncStatus flag = scanner.Scan(line, &tokens);
-    if (!flag)
+    if (flag != FuncStatus::Success)
     {
         return flag;
     }
@@ -71,14 +67,14 @@ FuncStatus Yaush::Analysis(const string &line)
     // Syntax analysis
     vector<CommandGroup> command_list;
     flag = parser.Parse(tokens, &command_list);
-    if (!flag)
+    if (flag != FuncStatus::Success)
     {
         return flag;
     }
 
     // Command execution
     flag = executor.Execute(command_list);
-    if (!flag)
+    if (flag != FuncStatus::Success)
     {
         return flag;
     }

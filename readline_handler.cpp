@@ -18,7 +18,7 @@ ReadlineHandler::ReadlineHandler(): line_read_(nullptr)
 {
 }
 
-char* ReadlineHandler::Gets()
+char* ReadlineHandler::Gets(bool is_reset)
 {
     if (line_read_)
     {
@@ -26,8 +26,16 @@ char* ReadlineHandler::Gets()
         line_read_ = nullptr;
     }
 
-    string shell_prompt = getenv("USER") + string("@yaush:")
-        + getcwd(NULL, 1000) + "$ ";
+    string shell_prompt;
+    if (is_reset)
+    {
+        shell_prompt = getenv("USER") + string("@yaush:")
+            + getcwd(NULL, 1000) + "$ ";
+    }
+    else
+    {
+        shell_prompt = "> ";
+    }
     line_read_ = readline(shell_prompt.c_str());
 
     if (line_read_ && *line_read_)
