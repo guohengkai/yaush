@@ -7,6 +7,7 @@
 #include "scanner.h"
 #include <string>
 #include <vector>
+#include "common.h"
 
 using std::string;
 using std::vector;
@@ -18,8 +19,9 @@ Scanner::Scanner()
 
 }
 
-bool Scanner::Scan(const string &line, vector<string> *tokens)
+FuncStatus Scanner::Scan(const string &line, vector<string> *tokens)
 {
-    return false;
+    // Ignore quote and \n in this version
+    return FuncStatus::Error;
 }
 }  // namespace ghk

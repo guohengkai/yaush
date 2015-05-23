@@ -9,6 +9,7 @@
 
 #include <vector>
 #include "command.h"
+#include "common.h"
 
 namespace ghk
 {
@@ -16,9 +17,9 @@ class Executor
 {
 public:
     Executor();
-    bool Execute(const std::vector<CommandGroup> &command_list);
+    FuncStatus Execute(const std::vector<CommandGroup> &command_list);
 private:
-    bool Execute(const CommandGroup &command_group);
+    FuncStatus Execute(const CommandGroup &command_group);
 };
 }  // namespace ghk
 

@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "command.h"
+#include "common.h"
 #include "executor.h"
 #include "parser.h"
 #include "readline_handler.h"
@@ -28,6 +29,7 @@ void Yaush::Loop()
 {
     static ReadlineHandler handler_;
     char* line_read = nullptr;
+    string line;
 
     while (true)
     {
@@ -39,12 +41,20 @@ void Yaush::Loop()
         }
         else if (*line_read)  // Not empty string
         {
-            Analysis(string(line_read));
+            line += string(line_read);
+            if (Analysis(string(line_read)))
+            {
+                line = "";
+            }
+            else
+            {
+                line += '\n';
+            }
         }
     }
 }
 
-bool Yaush::Analysis(const string &line)
+FuncStatus Yaush::Analysis(const string &line)
 {
     Scanner scanner;
     Parser parser;
@@ -52,24 +62,27 @@ bool Yaush::Analysis(const string &line)
 
     // Lexical analysis
     vector<string> tokens;
-    if (!scanner.Scan(line, &tokens))
+    FuncStatus flag = scanner.Scan(line, &tokens);
+    if (!flag)
     {
-        return false;
+        return flag;
     }
     
     // Syntax analysis
     vector<CommandGroup> command_list;
-    if (!parser.Parse(tokens, &command_list))
+    flag = parser.Parse(tokens, &command_list);
+    if (!flag)
     {
-        return false;
+        return flag;
     }
 
     // Command execution
-    if (!executor.Execute(command_list))
+    flag = executor.Execute(command_list);
+    if (!flag)
     {
-        return false;
+        return flag;
     }
 
-    return true;
+    return FuncStatus::Success;
 }
 }  // namespace ghk

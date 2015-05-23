@@ -9,6 +9,7 @@
 
 #include <string>
 #include <vector>
+#include "common.h"
 
 namespace ghk
 {
@@ -16,7 +17,7 @@ class Scanner
 {
 public:
     Scanner();
-    bool Scan(const std::string &line, std::vector<std::string> *tokens);
+    FuncStatus Scan(const std::string &line, std::vector<std::string> *tokens);
 };
 }  // namespace ghk
 

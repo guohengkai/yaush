@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include "command.h"
+#include "common.h"
 
 namespace ghk
 {
@@ -17,7 +18,7 @@ class Parser
 {
 public:
     Parser();
-    bool Parse(const std::vector<std::string> &tokens,
+    FuncStatus Parse(const std::vector<std::string> &tokens,
             std::vector<CommandGroup> *command_list);
 };
 }  // namespace ghk

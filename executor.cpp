@@ -6,6 +6,7 @@
  ************************************************************************/
 #include "executor.h"
 #include <vector>
+#include "common.h"
 
 using std::vector;
 
@@ -16,13 +17,13 @@ Executor::Executor()
 
 }
 
-bool Executor::Execute(const vector<CommandGroup> &command_list)
+FuncStatus Executor::Execute(const vector<CommandGroup> &command_list)
 {
-    return false;
+    return FuncStatus::Error;
 }
 
-bool Executor::Execute(const CommandGroup &command_group)
+FuncStatus Executor::Execute(const CommandGroup &command_group)
 {
-    return false;
+    return FuncStatus::Error;
 }
 }  // namespace ghk

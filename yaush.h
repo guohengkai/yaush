@@ -9,24 +9,11 @@
 
 #include <string>
 #include <vector>
+#include "common.h"
 #include "readline_handler.h"
 
 namespace ghk
 {
-enum JobStatus
-{
-    Running = 0,
-    Stopped,
-    Finished
-};
-
-struct Job
-{
-    int pid;
-    JobStatus status;
-    std::string cmd;
-};
-
 class Yaush
 {
 public:
@@ -36,7 +23,7 @@ public:
 
 private:
     Yaush() {}  // Never be instantiated
-    static bool Analysis(const std::string &line);
+    static FuncStatus Analysis(const std::string &line);
 };
 }  // namespace ghk
 

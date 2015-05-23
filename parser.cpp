@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include "command.h"
+#include "common.h"
 
 using std::string;
 using std::vector;
@@ -19,9 +20,9 @@ Parser::Parser()
 
 }
 
-bool Parser::Parse(const vector<string> &tokens,
+FuncStatus Parser::Parse(const vector<string> &tokens,
         vector<CommandGroup> *command_list)
 {
-    return false;
+    return FuncStatus::Error;
 }
 }  // namespace ghk
