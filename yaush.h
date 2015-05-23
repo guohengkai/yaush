@@ -36,6 +36,7 @@ public:
 
 private:
     Yaush() {}  // Never be instantiated
+    static bool Analysis(const std::string &line);
 };
 }  // namespace ghk
 
