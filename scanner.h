@@ -1,7 +1,7 @@
 /*************************************************************************
     > File Name: scanner.h
     > Author: Guo Hengkai
-    > Description: Lexical analysis class definition for YAUSH
+    > Description: Lexical analysis class definition for YAUSH using FSM
     > Created Time: Sun 17 May 2015 10:54:13 AM CST
  ************************************************************************/
 #ifndef YAUSH_SCANNER_H_
@@ -38,7 +38,7 @@ private:
     }
     inline bool IsSpecial(char ch)
     {
-        return ch == '|' || ch == '&' || ch == ';';
+        return ch == '|' || ch == '&' || ch == ';' || ch == '>' || ch == '<';
     }
     inline bool IsBreak(char ch)
     {

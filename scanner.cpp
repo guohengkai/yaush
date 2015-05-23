@@ -1,7 +1,7 @@
 /*************************************************************************
     > File Name: scanner.cpp
     > Author: Guo Hengkai
-    > Description: Lexical analysis class implementation for YAUSH
+    > Description: Lexical analysis class implementation for YAUSH using FSM
     > Created Time: Sun 17 May 2015 03:30:08 PM CST
  ************************************************************************/
 #include "scanner.h"
@@ -19,7 +19,8 @@ Scanner::Scanner()
 
 }
 
-// Support symbols: \ | & (space) " ' ;
+// Use finite state machine for lexical analysis
+// Support symbols: \ | & > < (space) " ' ;
 FuncStatus Scanner::Scan(const string &line, vector<Token> *tokens)
 {
     if (tokens == nullptr)
@@ -68,7 +69,7 @@ FuncStatus Scanner::Scan(const string &line, vector<Token> *tokens)
                     token.word += ch;
                 }
                 break;
-            case ScanStage::Special:  // Three symbols: | & ;
+            case ScanStage::Special:  // 5 symbols: | & ; > <
                 if (IsSpecial(ch))
                 {
                     token.word += ch;
