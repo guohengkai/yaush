@@ -29,6 +29,7 @@ void ErrorPrint(ShellError code, const string &info)
         case ShellError::InvalidEnd:
             title = SHELL_NAME;
             content = "invalid end with '" + info + "'";
+            break;
         case ShellError::NotFound:
             title = info;
             content = "command not found";

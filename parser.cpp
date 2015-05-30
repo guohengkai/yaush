@@ -132,7 +132,7 @@ FuncStatus Parser::Parse(const vector<Token> &tokens,
     }
     
     if (stage == ParseStage::Empty
-            && (last_syntax != ";" || last_syntax != "&"))
+            && (last_syntax != ";" && last_syntax != "&"))
     {
         ErrorPrint(ShellError::InvalidEnd, last_syntax);
         return FuncStatus::Error;
