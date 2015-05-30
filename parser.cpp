@@ -21,6 +21,7 @@ Parser::Parser()
 
 }
 
+// Use finite state machine for syntax analysis
 FuncStatus Parser::Parse(const vector<Token> &tokens,
         vector<CommandGroup> *command_list)
 {
@@ -160,23 +161,27 @@ FuncStatus Parser::Parse(const vector<Token> &tokens,
 void Parser::PrintCommandList(const vector<CommandGroup> &command_list)
 {
     printf("Total command groups: %zu\n", command_list.size());
-    string space_cmd(8, ' ');
+    string space_cmd(10, ' ');
     size_t group_idx = 0;
     for (auto group: command_list)
     {
         size_t cmd_idx = 0;
-        printf("{cmds:\n");
+        printf("{ cmds: ");
         for (auto cmd: group.cmd)
         {
-            printf("%s[name: '%s'\n", space_cmd.c_str(), cmd.name.c_str());
+            if (cmd_idx != 0)
+            {
+                printf("\n%s", space_cmd.substr(2).c_str());
+            }
+            printf("[ name: '%s'", cmd.name.c_str());
             if (!cmd.arg_list.empty())
             {
-                printf("%sarg: ", space_cmd.c_str());
+                printf("\n%sarg: ", space_cmd.c_str());
                 for (size_t i = 0; i < cmd.arg_list.size() - 1; ++i)
                 {
                     printf("'%s', ", cmd.arg_list[i].c_str());
                 }
-                printf("'%s'\n", cmd.arg_list.back().c_str());
+                printf("'%s'", cmd.arg_list.back().c_str());
             }
             for (int idx = 0; idx < 2; ++idx)
             {
@@ -184,10 +189,10 @@ void Parser::PrintCommandList(const vector<CommandGroup> &command_list)
                 {
                     continue;
                 }
-                printf("%s%s: ", space_cmd.c_str(), idx == 0 ? "in" : "out");
+                printf("\n%s%s: ", space_cmd.c_str(), idx == 0 ? "in" : "out");
                 if (cmd.io_type[idx] == CommandIOType::Pipe)
                 {
-                    printf("pipe\n");
+                    printf("PIPE");
                 }
                 else
                 {
@@ -196,44 +201,44 @@ void Parser::PrintCommandList(const vector<CommandGroup> &command_list)
                     {
                         printf("'%s', ", cmd.io_file_name[idx][i].c_str());
                     }
-                    printf("'%s'\n", cmd.io_file_name[idx].back().c_str());
+                    printf("'%s'", cmd.io_file_name[idx].back().c_str());
                 }
             }
             if (cmd_idx != group.cmd.size() - 1)
             {
-                printf("%s] -->\n", space_cmd.c_str());
+                printf(" ] -->");
             }
             else
             {
-                printf("%s]\n", space_cmd.c_str());
+                printf(" ]");
             }
             ++cmd_idx;
         }
         if (group.logic != CommandLogic::Empty)
         {
-            printf(" logic: ");
+            printf("\n  logic: ");
             switch (group.logic)
             {
                 case CommandLogic::And:
-                    printf("and\n");
+                    printf("AND");
                     break;
                 case CommandLogic::Or:
-                    printf("or\n");
+                    printf("OR");
                     break;
                 case CommandLogic::Background:
-                    printf("background\n");
+                    printf("BG");
                     break;
                 default:
-                    printf("unknown\n");
+                    printf("ERROR\n");
             }
         }
         if (group_idx != command_list.size() - 1)
         {
-            printf("} ------>\n");
+            printf(" } -------->\n");
         }
         else
         {
-            printf("}\n");
+            printf(" }\n");
         }
         ++group_idx;
     }
