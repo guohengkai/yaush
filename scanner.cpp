@@ -148,7 +148,8 @@ void Scanner::PrintTokens(const vector<Token> &tokens)
         if (token.is_special) printf("]");
         printf("\n");
     }
-    printf("--------------------------------\n");
+    string line(35, '-');
+    printf("%s\n", line.c_str());
 }
 
 void Scanner::PrintStage(ScanStage stage)

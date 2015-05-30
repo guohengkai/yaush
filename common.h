@@ -37,6 +37,8 @@ struct Token
     std::string word;
     bool is_special;
 };
+
+const std::string SHELL_NAME = "yaush";
 }  // namespace ghk
 
 #endif  // YAUSH_COMMON_H_

@@ -21,25 +21,37 @@ enum CommandIOType
 
 struct Command
 {
-    Command();
+    Command()
+    {
+        arg_list.clear();
+        for (int i = 0; i < 2; ++i)
+        {
+            io_type[i] = CommandIOType::Standard;
+            io_file_name[i].clear();
+        }
+    }
 
     std::string name;
     std::vector<std::string> arg_list;
     CommandIOType io_type[2];  // Input and output type
-    std::string io_file_name[2];  // For file type
-    bool is_bg;  // Background command
+    std::vector<std::string> io_file_name[2];  // For file type
 };
 
 enum CommandLogic
 {
     Empty = 0,
     And,
-    Or
+    Or,
+    Background  // Background job
 };
 
 struct CommandGroup
 {
-    CommandGroup();
+    CommandGroup()
+    {
+        cmd.clear();
+        logic = CommandLogic::Empty;
+    }
 
     std::vector<Command> cmd;
     CommandLogic logic;

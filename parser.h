@@ -19,6 +19,29 @@ public:
     Parser();
     FuncStatus Parse(const std::vector<Token> &tokens,
             std::vector<CommandGroup> *command_list);
+
+private:
+    enum ParseStage
+    {
+        Empty = 0,
+        Normal,
+        Wait
+    };
+
+    inline bool IsSupport(const std::string &str)
+    {
+        return str == "|" || str == "<" || str == ">" || str == "&"
+            || str == ";" || str == "&&" || str == "||";
+    }
+    
+    inline bool IsRedirect(const std::string &str)
+    {
+        return str == ">" || str == "<";
+    }
+
+#ifdef DEBUG
+    void PrintCommandList(const std::vector<CommandGroup> &command_list);
+#endif
 };
 }  // namespace ghk
 

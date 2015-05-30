@@ -9,6 +9,7 @@
 #include <string>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include "common.h"
 
 using std::string;
 
@@ -29,7 +30,7 @@ char* ReadlineHandler::Gets(bool is_reset)
     string shell_prompt;
     if (is_reset)
     {
-        shell_prompt = getenv("USER") + string("@yaush:")
+        shell_prompt = getenv("USER") + string("@") + SHELL_NAME + ":"
             + getcwd(NULL, 1000) + "$ ";
     }
     else
