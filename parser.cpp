@@ -51,6 +51,7 @@ FuncStatus Parser::Parse(const vector<Token> &tokens,
                 {
                     cmd.name = token.word;
                     stage = ParseStage::Normal;
+                    group.str += cmd.name + " ";
                 }
                 break;
             case ParseStage::Normal:
@@ -62,6 +63,7 @@ FuncStatus Parser::Parse(const vector<Token> &tokens,
                         {
                             stage = ParseStage::Wait;
                             redirect_input = (token.word == "<");
+                            group.str += token.word + " ";
                         }
                         else if (token.word == "|")  // Pipe
                         {
@@ -74,6 +76,7 @@ FuncStatus Parser::Parse(const vector<Token> &tokens,
                             cmd = Command();
                             cmd.io_type[0] = CommandIOType::Pipe;
                             stage = ParseStage::Empty;
+                            group.str += token.word + " ";
                         }
                         else  // || && ; &
                         {
@@ -83,14 +86,17 @@ FuncStatus Parser::Parse(const vector<Token> &tokens,
                             if (token.word == "||")
                             {
                                 group.logic = CommandLogic::Or;
+                                group.str.pop_back();
                             }
                             else if (token.word == "&&")
                             {
                                 group.logic = CommandLogic::And;
+                                group.str.pop_back();
                             }
                             else if (token.word == "&")
                             {
                                 group.logic = CommandLogic::Background;
+                                group.str += token.word;
                             }
 
                             command_list->push_back(group);
@@ -109,6 +115,7 @@ FuncStatus Parser::Parse(const vector<Token> &tokens,
                 else  // Arguments
                 {
                     cmd.arg_list.push_back(token.word);
+                    group.str += token.word + " ";
                 }
                 break;
             case ParseStage::Wait:
@@ -124,6 +131,7 @@ FuncStatus Parser::Parse(const vector<Token> &tokens,
                     cmd.io_type[idx] = CommandIOType::File;
                     cmd.io_file_name[idx].push_back(token.word);
                     stage = ParseStage::Normal;
+                    group.str += token.word + " ";
                 }
                 break;
             default:
@@ -147,6 +155,7 @@ FuncStatus Parser::Parse(const vector<Token> &tokens,
     {
         if (stage == ParseStage::Normal)
         {
+            group.str.pop_back();
             group.cmd.push_back(cmd);
             command_list->push_back(group);
         }
@@ -214,6 +223,9 @@ void Parser::PrintCommandList(const vector<CommandGroup> &command_list)
             }
             ++cmd_idx;
         }
+
+        printf("\n  str: %s", group.str.c_str());
+
         if (group.logic != CommandLogic::Empty)
         {
             printf("\n  logic: ");
@@ -229,7 +241,7 @@ void Parser::PrintCommandList(const vector<CommandGroup> &command_list)
                     printf("BG");
                     break;
                 default:
-                    printf("ERROR\n");
+                    printf("ERROR");
             }
         }
         if (group_idx != command_list.size() - 1)

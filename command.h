@@ -54,6 +54,7 @@ struct CommandGroup
     }
 
     std::vector<Command> cmd;
+    std::string str;
     CommandLogic logic;
 };
 }

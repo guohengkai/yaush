@@ -17,7 +17,8 @@ enum ShellError
     Syntax = 0,
     InvalidName,
     InvalidEnd,
-    NotFound
+    CmdNotFound,
+    PipeCreation
 };
 
 void ErrorPrint(ShellError code, const std::string &info);

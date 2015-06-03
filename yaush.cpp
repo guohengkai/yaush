@@ -10,6 +10,7 @@
 #include "command.h"
 #include "common.h"
 #include "executor.h"
+#include "job_handler.h"
 #include "parser.h"
 #include "readline_handler.h"
 #include "scanner.h"
@@ -28,6 +29,14 @@ Yaush* Yaush::GetInstance()
 void Yaush::Loop()
 {
     static ReadlineHandler handler_;
+    static int loop_num = 0;
+    ++loop_num;
+    if (loop_num > 1)  // The loop can only be executed once
+    {
+        printf("The shell is looping!\n");
+        return;
+    }
+
     char* line_read = nullptr;
     string line;
 
@@ -48,6 +57,7 @@ void Yaush::Loop()
             }
         }
     }
+    loop_num = 0;
 }
 
 FuncStatus Yaush::Analysis(const string &line)

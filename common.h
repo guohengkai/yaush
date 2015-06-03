@@ -18,20 +18,6 @@ enum FuncStatus
     WaitInput
 };
 
-enum JobStatus
-{
-    Running = 0,
-    Stopped,
-    Finished
-};
-
-struct Job
-{
-    int pid;
-    JobStatus status;
-    std::string cmd;
-};
-
 struct Token
 {
     std::string word;

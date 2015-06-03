@@ -30,9 +30,13 @@ void ErrorPrint(ShellError code, const string &info)
             title = SHELL_NAME;
             content = "invalid end with '" + info + "'";
             break;
-        case ShellError::NotFound:
+        case ShellError::CmdNotFound:
             title = info;
             content = "command not found";
+            break;
+        case ShellError::PipeCreation:
+            title = SHELL_NAME;
+            content = "fail to create pipes for '" + info + "'";
             break;
         default:
             title = SHELL_NAME;

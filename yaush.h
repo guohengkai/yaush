@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include "common.h"
+#include "job_handler.h"
 #include "readline_handler.h"
 
 namespace ghk
