@@ -45,7 +45,7 @@ void Yaush::Loop()
         line_read = handler_.Gets(line.empty());
         if (!line_read)  // EOF
         {
-            printf("\n");
+            printf("\n");  // When with pipes, the shell will exit, why?
             break;
         }
         else if (*line_read)  // Not empty string

@@ -15,7 +15,9 @@ namespace ghk
 {
 void ErrorPrint(ShellError code, const string &info)
 {
+#ifdef DEBUG
     printf("Error: %d\n", code);
+#endif
     string title, content;
     switch (code)
     {

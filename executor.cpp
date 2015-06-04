@@ -84,16 +84,20 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
             // Input
             if (cmds[i].io_type[0] == CommandIOType::Pipe)
             {
-                dup2(pipes[i - 1][0], STDIN_FILENO);
 #ifdef DEBUG
                 printf("Debug: command %s duplicate pipe to stdin\n",
                         cmds[i].name.c_str());
 #endif
+                dup2(pipes[i - 1][0], STDIN_FILENO);
             }
             else if (cmds[i].io_type[0] == CommandIOType::File)
             {
                 for (auto name: cmds[i].io_file_name[0])
                 {
+#ifdef DEBUG
+                    printf("Debug: command %s duplicate %s to stdin\n",
+                            cmds[i].name.c_str(), name.c_str());
+#endif
                     int fid = open(name.c_str(), O_RDONLY);
                     if (fid == -1)
                     {
@@ -102,26 +106,27 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
                     }
                     dup2(fid, STDIN_FILENO);
                     close(fid);
-#ifdef DEBUG
-                    printf("Debug: command %s duplicate %s to stdin\n",
-                            cmds[i].name.c_str(), name.c_str());
-#endif
                 }
             }
 
             // Output
             if (cmds[i].io_type[1] == CommandIOType::Pipe)
             {
-                dup2(pipes[i][1], STDOUT_FILENO);
+                // When putting the printf after dup2, it doesn't work, why?
 #ifdef DEBUG
                 printf("Debug: command %s duplicate pipe to stdout\n",
                         cmds[i].name.c_str());
 #endif
+                dup2(pipes[i][1], STDOUT_FILENO);
             }
             else if (cmds[i].io_type[1] == CommandIOType::File)
             {
                 for (auto name: cmds[i].io_file_name[1])
                 {
+#ifdef DEBUG
+                    printf("Debug: command %s duplicate %s to stdout\n",
+                            cmds[i].name.c_str(), name.c_str());
+#endif
                     int fid = open(name.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0664);
                     if (fid == -1)
                     {
@@ -130,10 +135,6 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
                     }
                     dup2(fid, STDOUT_FILENO);
                     close(fid);
-#ifdef DEBUG
-                    printf("Debug: command %s duplicate %s to stdout\n",
-                            cmds[i].name.c_str(), name.c_str());
-#endif
                 }
             }
 
