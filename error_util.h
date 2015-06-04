@@ -18,7 +18,11 @@ enum ShellError
     InvalidName,
     InvalidEnd,
     CmdNotFound,
-    PipeCreation
+    PipeCreation,
+    ForkFail,
+    FileError,
+    ExecError,
+    UnknownError
 };
 
 void ErrorPrint(ShellError code, const std::string &info);

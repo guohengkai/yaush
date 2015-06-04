@@ -50,6 +50,7 @@ FuncStatus Parser::Parse(const vector<Token> &tokens,
                 else
                 {
                     cmd.name = token.word;
+                    cmd.arg_list.push_back(token.word);
                     stage = ParseStage::Normal;
                     group.str += cmd.name + " ";
                 }

@@ -15,6 +15,7 @@ namespace ghk
 {
 void ErrorPrint(ShellError code, const string &info)
 {
+    printf("Error: %d\n", code);
     string title, content;
     switch (code)
     {
@@ -37,6 +38,26 @@ void ErrorPrint(ShellError code, const string &info)
         case ShellError::PipeCreation:
             title = SHELL_NAME;
             content = "fail to create pipes for '" + info + "'";
+            break;
+        case ShellError::ForkFail:
+            title = SHELL_NAME;
+            content = "fail to fork process for '" + info + "'";
+            break;
+        case ShellError::FileError:
+            title = SHELL_NAME;
+            content = "fail to open file " + info;
+            break;
+        case ShellError::ExecError:
+            title = SHELL_NAME;
+            content = info;
+            break;
+        case ShellError::UnknownError:
+            title = SHELL_NAME;
+            content = "unknown error";
+            if (!info.empty())
+            {
+                content += " with " + info;
+            }
             break;
         default:
             title = SHELL_NAME;
