@@ -73,8 +73,6 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
         int pid = fork();
         if (pid > 0)  // parent
         {
-            close(pipes[i][0]);
-            close(pipes[i][1]);
             current_job.pids.push(pid);
         }
         else if (pid == 0)  // child
@@ -154,6 +152,13 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
             ErrorPrint(ShellError::ForkFail, cmds[i].name);
             return FuncStatus::Error;
         }
+    }
+
+    // Close all the pipe descriptors
+    for (size_t i = 0; i < cmds.size() - 1; ++i)
+    {
+        close(pipes[i][0]);
+        close(pipes[i][1]);
     }
 
     if (is_bg)  // background
