@@ -10,6 +10,14 @@
 #include <cstdio>
 #include <string>
 
+#ifdef DEBUG
+#define LogDebug(fmt, ...)\
+    fprintf(stderr, "Debug: " fmt "\n",\
+            ##__VA_ARGS__)
+#else
+#define LogDebug(fmt, ...)
+#endif
+
 namespace ghk
 {
 enum ShellError

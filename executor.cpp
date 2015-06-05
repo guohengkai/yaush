@@ -38,10 +38,8 @@ FuncStatus Executor::Execute(const vector<CommandGroup> &command_list)
         if ((flag == FuncStatus::Success && group.logic == CommandLogic::Or)
                 || (flag == FuncStatus::Error && group.logic == CommandLogic::And))
         {
-#ifdef DEBUG
             string info = (group.logic == CommandLogic::Or ? "OR" : "AND");
-            printf("Debug: %s triggered.\n", info.c_str());
-#endif
+            LogDebug("%s triggered.", info.c_str());
             return FuncStatus::Success;
         }
     }
@@ -84,20 +82,14 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
             // Input
             if (cmds[i].io_type[0] == CommandIOType::Pipe)
             {
-#ifdef DEBUG
-                printf("Debug: command %s duplicate pipe to stdin\n",
-                        cmds[i].name.c_str());
-#endif
                 dup2(pipes[i - 1][0], STDIN_FILENO);
+                LogDebug("command %s duplicate pipe to stdin",
+                        cmds[i].name.c_str());
             }
             else if (cmds[i].io_type[0] == CommandIOType::File)
             {
                 for (auto name: cmds[i].io_file_name[0])
                 {
-#ifdef DEBUG
-                    printf("Debug: command %s duplicate %s to stdin\n",
-                            cmds[i].name.c_str(), name.c_str());
-#endif
                     int fid = open(name.c_str(), O_RDONLY);
                     if (fid == -1)
                     {
@@ -106,27 +98,22 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
                     }
                     dup2(fid, STDIN_FILENO);
                     close(fid);
+                    LogDebug("command %s duplicate %s to stdin",
+                            cmds[i].name.c_str(), name.c_str());
                 }
             }
 
             // Output
             if (cmds[i].io_type[1] == CommandIOType::Pipe)
             {
-                // When putting the printf after dup2, it doesn't work, why?
-#ifdef DEBUG
-                printf("Debug: command %s duplicate pipe to stdout\n",
-                        cmds[i].name.c_str());
-#endif
                 dup2(pipes[i][1], STDOUT_FILENO);
+                LogDebug("command %s duplicate pipe to stdout",
+                        cmds[i].name.c_str());  // Must use stderr
             }
             else if (cmds[i].io_type[1] == CommandIOType::File)
             {
                 for (auto name: cmds[i].io_file_name[1])
                 {
-#ifdef DEBUG
-                    printf("Debug: command %s duplicate %s to stdout\n",
-                            cmds[i].name.c_str(), name.c_str());
-#endif
                     int fid = open(name.c_str(), O_WRONLY | O_CREAT | O_TRUNC, 0664);
                     if (fid == -1)
                     {
@@ -135,6 +122,8 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
                     }
                     dup2(fid, STDOUT_FILENO);
                     close(fid);
+                    LogDebug("command %s duplicate %s to stdout",
+                            cmds[i].name.c_str(), name.c_str());
                 }
             }
 
@@ -153,14 +142,12 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
             }
             argv[cmds[i].arg_list.size()] = NULL;
             int flag = execvp(cmds[i].name.c_str(), argv);
-            if (flag == -1)
+            if (flag < 0)
             {
                 ErrorPrint(ShellError::ExecError,
                         cmds[i].name + ": " + strerror(errno));
                 exit(-1);
             }
-
-            exit(0);
         }
         else  // fail to fork
         {
@@ -184,15 +171,11 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
             int val = waitpid(pid, &status, 0);
             if (val > 0)
             {
-#ifdef DEBUG
-                printf("Debug: process %d is waited successfully\n", pid);
-#endif
+                LogDebug("process %d is waited successfully", pid);
             }
             else if (errno == ECHILD)  // pid not found
             {
-#ifdef DEBUG
-                printf("Debug: process %d not found\n", pid);
-#endif
+                LogDebug("process %d not found", pid);
             }
             else
             {
