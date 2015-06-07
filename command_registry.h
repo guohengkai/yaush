@@ -58,6 +58,34 @@ REGISTER_COMMAND(what, CustomWhat);
 bool CustomCd(const std::string &name,
         const std::vector<std::string> &argv);
 REGISTER_COMMAND(cd, CustomCd);
+
+bool CustomAbout(const std::string &name,
+        const std::vector<std::string> &argv);
+REGISTER_COMMAND(about, CustomAbout);
+
+bool CustomExit(const std::string &name,
+        const std::vector<std::string> &argv);
+REGISTER_COMMAND(exit, CustomExit);
+
+bool CustomJobs(const std::string &name,
+        const std::vector<std::string> &argv);
+REGISTER_COMMAND(jobs, CustomJobs);
+
+bool CustomFg(const std::string &name,
+        const std::vector<std::string> &argv);
+REGISTER_COMMAND(fg, CustomFg);
+
+bool CustomBg(const std::string &name,
+        const std::vector<std::string> &argv);
+REGISTER_COMMAND(bg, CustomBg);
+
+bool CustomImage(const std::string &name,
+        const std::vector<std::string> &argv);
+REGISTER_COMMAND(image, CustomImage);
+
+bool CustomLoop(const std::string &name,
+        const std::vector<std::string> &argv);
+REGISTER_COMMAND(loop, CustomLoop);
 }  // namespace ghk
 
 #endif  // YAUSH_COMMAND_REGISTRY_H_

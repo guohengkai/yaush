@@ -62,11 +62,54 @@ string CommandRegistry::CommandList()
 bool CustomWhat(const string &name, const vector<string> &argv)
 {
     string result = CommandRegistry::CommandList();
-    printf("Support custom command: %s\n", result.c_str());
+    printf("Support custom commands: %s\n", result.c_str());
     return true;
 }
 
 bool CustomCd(const string &name, const vector<string> &argv)
+{
+    return false;
+}
+
+bool CustomAbout(const string &name, const vector<string> &argv)
+{
+    printf("****************************************************\n");
+    printf("  > Shell Name: YAUSH\n");
+    printf("  > Version:    1.0\n");
+    printf("  > Author:     Guo Hengkai\n");
+    printf("  > Email:      guohengkaighk@gmail.com\n");
+    printf("  > Date:       2015.06.\n");
+    printf("  > Website:    https://github.com/guohengkai/yaush\n");
+    printf("****************************************************\n");
+    return true;
+}
+
+bool CustomExit(const string &name, const vector<string> &argv)
+{
+    return false;
+}
+
+bool CustomJobs(const string &name, const vector<string> &argv)
+{
+    return false;
+}
+
+bool CustomFg(const string &name, const vector<string> &argv)
+{
+    return false;
+}
+
+bool CustomBg(const string &name, const vector<string> &argv)
+{
+    return false;
+}
+
+bool CustomImage(const string &name, const vector<string> &argv)
+{
+    return false;
+}
+
+bool CustomLoop(const string &name, const vector<string> &argv)
 {
     return false;
 }
