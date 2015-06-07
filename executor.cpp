@@ -14,6 +14,7 @@
 #include <string>
 #include <queue>
 #include <vector>
+#include "command_registry.h"
 #include "common.h"
 #include "error_util.h"
 #include "job_handler.h"
@@ -133,18 +134,33 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
             }
 
             // Execute the command
-            char *argv[cmds[i].arg_list.size() + 1];
-            for (size_t j = 0; j  < cmds[i].arg_list.size(); ++j)
+            auto status = CommandRegistry::ExecuteCommand(cmds[i].name,
+                                                          cmds[i].arg_list);
+            if (status == CmdStatus::Notfound)  // System command
             {
-                argv[j] = const_cast<char*>(cmds[i].arg_list[j].c_str());
+                char *argv[cmds[i].arg_list.size() + 1];
+                for (size_t j = 0; j  < cmds[i].arg_list.size(); ++j)
+                {
+                    argv[j] = const_cast<char*>(cmds[i].arg_list[j].c_str());
+                }
+                argv[cmds[i].arg_list.size()] = NULL;
+                int flag = execvp(cmds[i].name.c_str(), argv);
+                if (flag < 0)
+                {
+                    ErrorPrint(ShellError::ExecError,
+                            cmds[i].name + ": " + strerror(errno));
+                    exit(-1);
+                }
             }
-            argv[cmds[i].arg_list.size()] = NULL;
-            int flag = execvp(cmds[i].name.c_str(), argv);
-            if (flag < 0)
+            else if (status == CmdStatus::Fail)
             {
                 ErrorPrint(ShellError::ExecError,
-                        cmds[i].name + ": " + strerror(errno));
+                        cmds[i].name + ": " + CommandRegistry::error_info());
                 exit(-1);
+            }
+            else
+            {
+                exit(0);
             }
         }
         else  // fail to fork

@@ -13,6 +13,13 @@
 
 namespace ghk
 {
+enum CmdStatus
+{
+    Ok = 0,
+    Fail,
+    Notfound
+};
+
 class CommandRegistry
 {
 public:
@@ -22,12 +29,14 @@ public:
 
     static CmdRegistry& Registry();
     static void AddCommand(const std::string &name, CmdExecute cmd);
-    static bool ExecuteCommand(const std::string &name,
+    static CmdStatus ExecuteCommand(const std::string &name,
             const std::vector<std::string> &argv);
     static std::string CommandList();
+    inline static const std::string& error_info() { return error_info_; }
 
 private:
     CommandRegistry() {}  // Never be instantiated
+    static std::string error_info_;
 };
 
 class CommandRegister
@@ -41,10 +50,6 @@ public:
 
 #define REGISTER_COMMAND(name, cmd)     \
     static CommandRegister command_##name(#name, cmd)
-
-bool SystemCommand(const std::string &name,
-        const std::vector<std::string> &argv);
-REGISTER_COMMAND(, SystemCommand);
 
 bool CustomWhat(const std::string &name,
         const std::vector<std::string> &argv);

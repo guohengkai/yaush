@@ -14,6 +14,8 @@ using std::vector;
 
 namespace ghk
 {
+string CommandRegistry::error_info_;
+
 CommandRegistry::CmdRegistry& CommandRegistry::Registry()
 {
     static CmdRegistry* registry_ = new CmdRegistry();
@@ -24,20 +26,20 @@ void CommandRegistry::AddCommand(const string &name, CmdExecute cmd)
 {
     CmdRegistry &registry = Registry();
     registry[name] = cmd;
-    // CustomWhat("", vector<string>());
 }
 
-bool CommandRegistry::ExecuteCommand(const string &name,
+CmdStatus CommandRegistry::ExecuteCommand(const string &name,
             const vector<string> &argv)
 {
     CmdRegistry &registry = Registry();
     if (registry.count(name) != 1)
     {
-        return registry[""](name, argv);
+        return CmdStatus::Notfound;
     }
     else
     {
-        return registry[name](name, argv);
+        return (registry[name](name, argv) ? CmdStatus::Ok
+                                           : CmdStatus::Fail);
     }
 }
 
@@ -48,19 +50,13 @@ string CommandRegistry::CommandList()
     int cnt = 0;
     for (auto iter = registry.begin(); iter != registry.end(); ++iter, ++cnt)
     {
-        if (cnt == 0) continue;  // Skip system command
-        if (cnt > 1)
+        if (cnt > 0)
         {
             result += ", ";
         }
         result += iter->first;
     }
     return result;
-}
-
-bool SystemCommand(const string &name, const vector<string> &argv)
-{
-    return false;
 }
 
 bool CustomWhat(const string &name, const vector<string> &argv)
