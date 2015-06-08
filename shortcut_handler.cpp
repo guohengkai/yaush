@@ -7,7 +7,9 @@
 #include "shortcut_handler.h"
 #include <setjmp.h>
 #include <signal.h>
+#include <sys/wait.h>
 #include "error_util.h"
+#include "job_handler.h"
 
 namespace ghk
 {
@@ -51,6 +53,19 @@ void SignalCtrlC(int signo, siginfo_t *info, void *context)
 {
     printf("\n");
     LogDebug("Ctrl-C is pressed");
+
+    JobHandler *job_handler = JobHandler::GetInstance();
+    auto &pid_list = job_handler->fg_job.pids;
+    while (!pid_list.empty())
+    {
+        auto pid = pid_list.front();
+        int res = kill(pid, SIGINT);
+        printf("kill: %d\n", res);
+        int status;
+        int val = waitpid(pid, &status, 0);
+        printf("val: %d\n", val);
+        pid_list.pop();
+    }
 
     ShortcutHandler *shortcut_handler = ShortcutHandler::GetInstance();
     siglongjmp(shortcut_handler->jmp_buf_ctrlc(), 1);
