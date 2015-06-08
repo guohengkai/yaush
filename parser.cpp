@@ -87,19 +87,17 @@ FuncStatus Parser::Parse(const vector<Token> &tokens,
                             if (token.word == "||")
                             {
                                 group.logic = CommandLogic::Or;
-                                group.str.pop_back();
                             }
                             else if (token.word == "&&")
                             {
                                 group.logic = CommandLogic::And;
-                                group.str.pop_back();
                             }
                             else if (token.word == "&")
                             {
                                 group.logic = CommandLogic::Background;
-                                group.str += token.word;
                             }
 
+                            group.str.pop_back();
                             command_list->push_back(group);
                             group = CommandGroup();
                             stage = ParseStage::Empty;

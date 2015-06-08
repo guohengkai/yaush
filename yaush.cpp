@@ -33,18 +33,20 @@ void Yaush::Loop()
     ++loop_num;
     if (loop_num > 1)  // The loop can only be executed once
     {
-        printf("The shell is looping!\n");
+        fprintf(stderr, "The shell is looping!\n");
         return;
     }
 
     char* line_read = nullptr;
     string line;
+    JobHandler *handler = JobHandler::GetInstance();
 
     while (true)
     {
         line_read = handler_.Gets(line.empty());
         if (!line_read)  // EOF
         {
+            handler->KillAllJobs();
             printf("\n");
             break;
         }
@@ -56,6 +58,8 @@ void Yaush::Loop()
                 line = "";
             }
         }
+
+        handler->CheckBackgroundJobs();
     }
     loop_num = 0;
 }

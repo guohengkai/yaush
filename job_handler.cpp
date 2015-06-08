@@ -5,15 +5,16 @@
     > Created Time: Tue 02 Jun 2015 04:49:34 PM CST
  ************************************************************************/
 #include "job_handler.h"
-#include <map>
+#include <errno.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <list>
+#include "error_util.h"
 
-using std::map;
+using std::list;
 
 namespace ghk
 {
-std::map<int, Job> JobHandler::bg_jobs;
-Job JobHandler::fg_job;
-
 JobHandler* JobHandler::GetInstance()
 {
     static JobHandler instance_;
@@ -22,16 +23,86 @@ JobHandler* JobHandler::GetInstance()
 
 bool JobHandler::InsertBackgroundJob(const Job &job)
 {
-    int idx;
-    if (bg_jobs.empty())
-    {
-        idx = 1;
-    }
-    else
-    {
-        idx = bg_jobs.rbegin()->first + 1;
-    }
-    bg_jobs[idx] = job;
+    bg_jobs.push_back(job);
+    bg_jobs.back().job_num = IncreaseIdx();
     return true;
+}
+
+void JobHandler::CheckBackgroundJobs()
+{
+    auto iter = bg_jobs.begin();
+    while (iter != bg_jobs.end())
+    {
+        auto job = *iter;
+        if (job.status == JobStatus::Running)
+        {
+            while (!job.pids.empty())
+            {
+                auto pid = job.pids.front();
+                int status;
+                int val = waitpid(pid, &status, WNOHANG);
+                if (val == 0)  // Not finished
+                {
+                    break;
+                }
+                else if (val > 0)
+                {
+                    LogDebug("process %d is waited successfully", pid);
+                }
+                else if (errno == ECHILD)
+                {
+                    LogDebug("process %d not found", pid);
+                }
+                else
+                {
+                    ErrorPrint(ShellError::UnknownError, "waitpid");
+                }
+                job.pids.pop();
+            }
+
+            if (job.pids.empty())
+            {
+                printf("[%d]%c  Done\t\t\t%s\n",
+                        job.job_num, GetJobChar(job.job_num), job.cmd.c_str());
+                iter = bg_jobs.erase(iter);
+            }
+            else
+            {
+                ++iter;
+            }
+        }
+        else
+        {
+            ++iter;
+        }
+    }
+}
+
+void JobHandler::KillAllJobs()
+{
+
+}
+
+char JobHandler::GetJobChar(int idx)
+{
+    int cnt = 0;
+    auto iter = bg_jobs.rbegin();
+    while (iter != bg_jobs.rend() && cnt < 2)
+    {
+        if (idx == iter->job_num)
+        {
+            if (cnt == 0)
+            {
+                return '+';
+            }
+            else if (cnt == 1)
+            {
+                return '-';
+            }
+        }
+        ++cnt;
+        ++iter;
+    }
+    return ' ';
 }
 }  // namespace ghk

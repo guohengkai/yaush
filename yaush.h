@@ -10,7 +10,6 @@
 #include <string>
 #include <vector>
 #include "common.h"
-#include "job_handler.h"
 #include "readline_handler.h"
 
 namespace ghk
@@ -20,7 +19,6 @@ class Yaush
 public:
     static Yaush* GetInstance();
     static void Loop();
-    static std::vector<Job> fore_jobs, back_jobs;
 
 private:
     Yaush() {}  // Never be instantiated

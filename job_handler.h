@@ -8,7 +8,7 @@
 #define YAUSH_JOB_HANDLER_H_
 
 #include <string>
-#include <map>
+#include <list>
 #include <queue>
 
 namespace ghk
@@ -16,8 +16,7 @@ namespace ghk
 enum JobStatus
 {
     Running = 0,
-    Stopped,
-    Finished
+    Stopped
 };
 
 struct Job
@@ -25,19 +24,26 @@ struct Job
     std::queue<int> pids;
     JobStatus status;
     std::string cmd;
+    int job_num;
 };
 
 class JobHandler
 {
 public:
     static JobHandler* GetInstance();
-    static bool InsertBackgroundJob(const Job &job);
+    bool InsertBackgroundJob(const Job &job);
+    void CheckBackgroundJobs();
+    void KillAllJobs();
+    inline int max_idx() { return max_idx_; }
+    inline int IncreaseIdx() { return ++max_idx_; }
 
-    static std::map<int, Job> bg_jobs;
-    static Job fg_job;
+    std::list<Job> bg_jobs;
+    Job fg_job;
 
 private:
     JobHandler() {}  // Never be instantiated
+    char GetJobChar(int idx);
+    int max_idx_;
 };
 }  // namespace ghk
 

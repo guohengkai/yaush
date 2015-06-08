@@ -69,6 +69,7 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
 
     Job current_job;
     current_job.status = JobStatus::Running;
+    current_job.cmd = str;
     for (int i = static_cast<int>(cmds.size()) - 1; i >= 0; --i)  // Reversely connect pipes
     {
         int pid = fork();

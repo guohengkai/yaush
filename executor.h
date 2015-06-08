@@ -18,6 +18,7 @@ class Executor
 public:
     Executor();
     FuncStatus Execute(const std::vector<CommandGroup> &command_list);
+
 private:
     FuncStatus Execute(const std::vector<Command> &cmds,
             const std::string &str, bool is_bg);
