@@ -14,6 +14,7 @@
 #include "parser.h"
 #include "readline_handler.h"
 #include "scanner.h"
+#include "shortcut_handler.h"
 
 using std::string;
 using std::vector;
@@ -39,14 +40,19 @@ void Yaush::Loop()
 
     char* line_read = nullptr;
     string line;
-    JobHandler *handler = JobHandler::GetInstance();
+    JobHandler *job_handler = JobHandler::GetInstance();
+
+    // Binding shortcuts
+    ShortcutHandler *shortcut_handler = ShortcutHandler::GetInstance();
+    shortcut_handler->BindShortcut();
+    CatchJump(shortcut_handler);
 
     while (true)
     {
         line_read = handler_.Gets(line.empty());
         if (!line_read)  // EOF
         {
-            handler->KillAllJobs();
+            job_handler->KillAllJobs();
             printf("\n");
             break;
         }
@@ -59,7 +65,7 @@ void Yaush::Loop()
             }
         }
 
-        handler->CheckBackgroundJobs();
+        job_handler->CheckBackgroundJobs();
     }
     loop_num = 0;
 }
