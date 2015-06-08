@@ -78,11 +78,6 @@ void JobHandler::CheckBackgroundJobs()
     }
 }
 
-void JobHandler::KillAllJobs()
-{
-
-}
-
 char JobHandler::GetJobChar(int idx)
 {
     int cnt = 0;

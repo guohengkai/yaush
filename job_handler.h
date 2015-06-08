@@ -33,9 +33,11 @@ public:
     static JobHandler* GetInstance();
     bool InsertBackgroundJob(const Job &job);
     void CheckBackgroundJobs();
-    void KillAllJobs();
+
     inline int max_idx() { return max_idx_; }
     inline int IncreaseIdx() { return ++max_idx_; }
+    inline bool is_exit() { return is_exit_; }
+    inline void set_is_exit(bool is_exit) { is_exit_ = is_exit; }
 
     std::list<Job> bg_jobs;
     Job fg_job;
@@ -44,6 +46,7 @@ private:
     JobHandler() {}  // Never be instantiated
     char GetJobChar(int idx);
     int max_idx_;
+    bool is_exit_;
 };
 }  // namespace ghk
 

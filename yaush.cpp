@@ -38,23 +38,22 @@ void Yaush::Loop()
         return;
     }
 
-    char* line_read = nullptr;
-    string line;
-    JobHandler *job_handler = JobHandler::GetInstance();
-
     // Binding shortcuts
     ShortcutHandler *shortcut_handler = ShortcutHandler::GetInstance();
     shortcut_handler->BindShortcut();
     CatchJump(shortcut_handler);
 
-    while (true)
+    char* line_read = nullptr;
+    string line;
+    JobHandler *job_handler = JobHandler::GetInstance();
+
+    while (!job_handler->is_exit())
     {
         line_read = handler_.Gets(line.empty());
         if (!line_read)  // EOF
         {
-            job_handler->KillAllJobs();
             printf("\n");
-            break;
+            job_handler->set_is_exit(true);
         }
         else if (*line_read)  // Not empty string
         {
@@ -63,9 +62,8 @@ void Yaush::Loop()
             {
                 line = "";
             }
+            job_handler->CheckBackgroundJobs();
         }
-
-        job_handler->CheckBackgroundJobs();
     }
     loop_num = 0;
 }

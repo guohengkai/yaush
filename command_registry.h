@@ -33,6 +33,10 @@ public:
             const std::vector<std::string> &argv);
     static std::string CommandList();
     inline static const std::string& error_info() { return error_info_; }
+    inline static void set_error_info(const std::string &info)
+    {
+        error_info_ = info;
+    }
 
 private:
     CommandRegistry() {}  // Never be instantiated
@@ -66,6 +70,7 @@ REGISTER_COMMAND(about, CustomAbout);
 bool CustomExit(const std::string &name,
         const std::vector<std::string> &argv);
 REGISTER_COMMAND(exit, CustomExit);
+const std::string EXIT_CMD = "exit";
 
 bool CustomJobs(const std::string &name,
         const std::vector<std::string> &argv);

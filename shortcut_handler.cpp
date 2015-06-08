@@ -35,7 +35,6 @@ bool ShortcutHandler::BindShortcut()
         return false;
     }
 
-
     return true;
 }
 

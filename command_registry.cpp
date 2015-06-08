@@ -5,8 +5,11 @@
     > Created Time: Sun 17 May 2015 02:14:43 PM CST
  ************************************************************************/
 #include "command_registry.h"
+#include <signal.h>
+#include <unistd.h>
 #include <map>
 #include <string>
+#include "job_handler.h"
 
 using std::map;
 using std::string;
@@ -86,7 +89,9 @@ bool CustomAbout(const string &name, const vector<string> &argv)
 
 bool CustomExit(const string &name, const vector<string> &argv)
 {
-    return false;
+    // Do nothing in this function but in the executor.cpp
+    // Bad idea to use kill(0, SIGKILL)
+    return true;
 }
 
 bool CustomJobs(const string &name, const vector<string> &argv)
@@ -111,6 +116,29 @@ bool CustomImage(const string &name, const vector<string> &argv)
 
 bool CustomLoop(const string &name, const vector<string> &argv)
 {
-    return false;
+    long long cnt = 0;
+    long long limit;
+    if (argv.size() == 1)
+    {
+        limit = 100;
+    }
+    else
+    {
+        limit = atoi(argv[1].c_str());
+        if (limit <= 0)
+        {
+            CommandRegistry::set_error_info("invalid time parameter '"
+                    + argv[1] + "'");
+            return false;
+        }
+    }
+
+    while (cnt < limit)
+    {
+        printf("Loop: %lld\n", cnt);
+        ++cnt;
+        sleep(1);
+    }
+    return true;
 }
 }  // namespace ghk

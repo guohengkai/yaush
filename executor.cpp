@@ -205,6 +205,11 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
             }
             pid_list.pop();
         }
+
+        if (cmds.size() == 1 && cmds[0].name == EXIT_CMD)
+        {
+            handler->set_is_exit(true);
+        }
     }
     return FuncStatus::Success;
 }
