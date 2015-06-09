@@ -8,6 +8,7 @@
 #define YAUSH_COMMAND_REGISTRY_H_
 
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -25,72 +26,78 @@ class CommandRegistry
 public:
     typedef bool (*CmdExecute)(const std::string &name,
             const std::vector<std::string> &argv);
-    typedef std::map<std::string, CmdExecute> CmdRegistry;
-
-    static CmdRegistry& Registry();
-    static void AddCommand(const std::string &name, CmdExecute cmd);
-    static CmdStatus ExecuteCommand(const std::string &name,
+    static CommandRegistry* GetInstance();
+    void AddCommand(const std::string &name, CmdExecute cmd,
+            bool is_main);
+    CmdStatus ExecuteCommand(const std::string &name,
             const std::vector<std::string> &argv);
-    static std::string CommandList();
-    inline static const std::string& error_info() { return error_info_; }
-    inline static void set_error_info(const std::string &info)
+    std::string CommandList();
+    inline const std::string& error_info() { return error_info_; }
+    inline void set_error_info(const std::string &info)
     {
         error_info_ = info;
+    }
+    inline bool IsCommandMain(const std::string &cmd)
+    {
+        return (main_set_.count(cmd) > 0);
     }
 
 private:
     CommandRegistry() {}  // Never be instantiated
-    static std::string error_info_;
+    std::string error_info_;
+    std::set<std::string> main_set_;
+    std::map<std::string, CmdExecute> registry_;
 };
 
 class CommandRegister
 {
 public:
-    CommandRegister(const std::string &name, CommandRegistry::CmdExecute cmd)
+    CommandRegister(const std::string &name, CommandRegistry::CmdExecute cmd,
+                        bool is_main)
     {
-        CommandRegistry::AddCommand(name, cmd);
+        CommandRegistry *registry = CommandRegistry::GetInstance();
+        registry->AddCommand(name, cmd, is_main);
     }
 };
 
-#define REGISTER_COMMAND(name, cmd)     \
-    static CommandRegister command_##name(#name, cmd)
+#define REGISTER_COMMAND(name, cmd, is_main)     \
+    static CommandRegister command_##name(#name, cmd, is_main)
 
 bool CustomWhat(const std::string &name,
         const std::vector<std::string> &argv);
-REGISTER_COMMAND(what, CustomWhat);
+REGISTER_COMMAND(what, CustomWhat, false);
 
 bool CustomCd(const std::string &name,
         const std::vector<std::string> &argv);
-REGISTER_COMMAND(cd, CustomCd);
+REGISTER_COMMAND(cd, CustomCd, true);
 
 bool CustomAbout(const std::string &name,
         const std::vector<std::string> &argv);
-REGISTER_COMMAND(about, CustomAbout);
+REGISTER_COMMAND(about, CustomAbout, false);
 
 bool CustomExit(const std::string &name,
         const std::vector<std::string> &argv);
-REGISTER_COMMAND(exit, CustomExit);
-const std::string EXIT_CMD = "exit";
+REGISTER_COMMAND(exit, CustomExit, true);
 
 bool CustomJobs(const std::string &name,
         const std::vector<std::string> &argv);
-REGISTER_COMMAND(jobs, CustomJobs);
+REGISTER_COMMAND(jobs, CustomJobs, false);
 
 bool CustomFg(const std::string &name,
         const std::vector<std::string> &argv);
-REGISTER_COMMAND(fg, CustomFg);
+REGISTER_COMMAND(fg, CustomFg, false);
 
 bool CustomBg(const std::string &name,
         const std::vector<std::string> &argv);
-REGISTER_COMMAND(bg, CustomBg);
+REGISTER_COMMAND(bg, CustomBg, false);
 
 bool CustomImage(const std::string &name,
         const std::vector<std::string> &argv);
-REGISTER_COMMAND(image, CustomImage);
+REGISTER_COMMAND(image, CustomImage, false);
 
 bool CustomLoop(const std::string &name,
         const std::vector<std::string> &argv);
-REGISTER_COMMAND(loop, CustomLoop);
+REGISTER_COMMAND(loop, CustomLoop, false);
 }  // namespace ghk
 
 #endif  // YAUSH_COMMAND_REGISTRY_H_

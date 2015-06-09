@@ -56,6 +56,7 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
     }
 
     JobHandler *handler = JobHandler::GetInstance();
+    CommandRegistry *registry = CommandRegistry::GetInstance();
 
     int pipes[cmds.size() - 1][2];
     for (size_t i = 0; i < cmds.size() - 1; ++i)
@@ -135,7 +136,12 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
             }
 
             // Execute the command
-            auto status = CommandRegistry::ExecuteCommand(cmds[i].name,
+            if (registry->IsCommandMain(cmds[i].name))
+            {
+                exit(0);
+            }
+
+            auto status = registry->ExecuteCommand(cmds[i].name,
                                                           cmds[i].arg_list);
             if (status == CmdStatus::Notfound)  // System command
             {
@@ -156,7 +162,7 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
             else if (status == CmdStatus::Fail)
             {
                 ErrorPrint(ShellError::ExecError,
-                        cmds[i].name + ": " + CommandRegistry::error_info());
+                        cmds[i].name + ": " + registry->error_info());
                 exit(-1);
             }
             else
@@ -206,9 +212,16 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
             pid_list.pop_front();
         }
 
-        if (cmds.size() == 1 && cmds[0].name == EXIT_CMD)
+        if (cmds.size() == 1 && registry->IsCommandMain(cmds[0].name))
         {
-            handler->set_is_exit(true);
+            auto status = registry->ExecuteCommand(cmds[0].name,
+                                                          cmds[0].arg_list);
+            if (status == CmdStatus::Fail)
+            {
+                ErrorPrint(ShellError::ExecError,
+                        cmds[0].name + ": " + registry->error_info());
+                return FuncStatus::Error;
+            }
         }
     }
     return FuncStatus::Success;

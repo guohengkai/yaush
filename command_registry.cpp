@@ -5,6 +5,7 @@
     > Created Time: Sun 17 May 2015 02:14:43 PM CST
  ************************************************************************/
 #include "command_registry.h"
+#include <cstring>
 #include <errno.h>
 #include <signal.h>
 #include <sys/wait.h>
@@ -12,6 +13,7 @@
 #include <list>
 #include <map>
 #include <queue>
+#include <set>
 #include <sstream>
 #include <string>
 #include "error_util.h"
@@ -20,47 +22,48 @@
 using std::list;
 using std::map;
 using std::queue;
+using std::set;
 using std::string;
 using std::stringstream;
 using std::vector;
 
 namespace ghk
 {
-string CommandRegistry::error_info_;
-
-CommandRegistry::CmdRegistry& CommandRegistry::Registry()
+CommandRegistry* CommandRegistry::GetInstance()
 {
-    static CmdRegistry* registry_ = new CmdRegistry();
-    return *registry_;
+    static CommandRegistry instance_;
+    return &instance_;
 }
 
-void CommandRegistry::AddCommand(const string &name, CmdExecute cmd)
+void CommandRegistry::AddCommand(const string &name,
+                                 CmdExecute cmd, bool is_main)
 {
-    CmdRegistry &registry = Registry();
-    registry[name] = cmd;
+    registry_[name] = cmd;
+    if (is_main)
+    {
+        main_set_.insert(name);
+    }
 }
 
 CmdStatus CommandRegistry::ExecuteCommand(const string &name,
             const vector<string> &argv)
 {
-    CmdRegistry &registry = Registry();
-    if (registry.count(name) != 1)
+    if (registry_.count(name) != 1)
     {
         return CmdStatus::Notfound;
     }
     else
     {
-        return (registry[name](name, argv) ? CmdStatus::Ok
-                                           : CmdStatus::Fail);
+        return (registry_[name](name, argv) ? CmdStatus::Ok
+                                            : CmdStatus::Fail);
     }
 }
 
 string CommandRegistry::CommandList()
 {
-    CmdRegistry &registry = Registry();
     string result;
     int cnt = 0;
-    for (auto iter = registry.begin(); iter != registry.end(); ++iter, ++cnt)
+    for (auto iter = registry_.begin(); iter != registry_.end(); ++iter, ++cnt)
     {
         if (cnt > 0)
         {
@@ -73,14 +76,32 @@ string CommandRegistry::CommandList()
 
 bool CustomWhat(const string &name, const vector<string> &argv)
 {
-    string result = CommandRegistry::CommandList();
+    CommandRegistry *registry = CommandRegistry::GetInstance();
+    string result = registry->CommandList();
     printf("Support custom commands: %s\n", result.c_str());
     return true;
 }
 
 bool CustomCd(const string &name, const vector<string> &argv)
 {
-    return false;
+    string path;
+    if (argv.size() == 1 || argv[1] == "~")
+    {
+        path = string("/home/") + getenv("USER") + "/";
+    }
+    else
+    {
+        path = argv[1];
+    }
+
+    int val = chdir(path.c_str());
+    if (val == -1)
+    {
+        CommandRegistry *registry = CommandRegistry::GetInstance();
+        registry->set_error_info(string(strerror(errno)));
+        return false;
+    }
+    return true;
 }
 
 bool CustomAbout(const string &name, const vector<string> &argv)
@@ -98,8 +119,9 @@ bool CustomAbout(const string &name, const vector<string> &argv)
 
 bool CustomExit(const string &name, const vector<string> &argv)
 {
-    // Do nothing in this function but in the executor.cpp
     // Bad idea to use kill(0, SIGKILL)
+    JobHandler *job_handler = JobHandler::GetInstance();
+    job_handler->set_is_exit(true);
     return true;
 }
 
@@ -156,9 +178,10 @@ bool CustomFg(const string &name, const vector<string> &argv)
         }
     }
 
+    CommandRegistry *registry = CommandRegistry::GetInstance();
     if (!info.empty())
     {
-        CommandRegistry::set_error_info(info + ": no such job");
+        registry->set_error_info(info + ": no such job");
         return false;
     }
 
@@ -167,7 +190,7 @@ bool CustomFg(const string &name, const vector<string> &argv)
     {
         stringstream ss;
         ss << job.job_num;
-        CommandRegistry::set_error_info("job " + ss.str() + " is done");
+        registry->set_error_info("job " + ss.str() + " is done");
         return false;
     }
     else  // Running or stopped
@@ -187,7 +210,7 @@ bool CustomFg(const string &name, const vector<string> &argv)
                 {
                     stringstream ss;
                     ss << pid;
-                    CommandRegistry::set_error_info(
+                    registry->set_error_info(
                             "fail to resume the process " + ss.str());
                     return false;
                 }
@@ -209,7 +232,7 @@ bool CustomFg(const string &name, const vector<string> &argv)
             }
             else
             {
-                CommandRegistry::set_error_info("fail with waitpid");
+                registry->set_error_info("fail with waitpid");
                 return false;
             }
             pid_list.pop_front();
@@ -260,9 +283,10 @@ bool CustomBg(const string &name, const vector<string> &argv)
         }
     }
 
+    CommandRegistry *registry = CommandRegistry::GetInstance();
     if (!info.empty())
     {
-        CommandRegistry::set_error_info(info + ": no such job");
+        registry->set_error_info(info + ": no such job");
         return false;
     }
 
@@ -281,7 +305,7 @@ bool CustomBg(const string &name, const vector<string> &argv)
             status = "running";
         }
 
-        CommandRegistry::set_error_info("job " + ss.str() + " is " + status);
+        registry->set_error_info("job " + ss.str() + " is " + status);
         return false;
     }
     else
@@ -294,7 +318,7 @@ bool CustomBg(const string &name, const vector<string> &argv)
             {
                 stringstream ss;
                 ss << pid;
-                CommandRegistry::set_error_info(
+                registry->set_error_info(
                         "fail to resume the process " + ss.str());
                 return false;
             }
@@ -323,7 +347,8 @@ bool CustomLoop(const string &name, const vector<string> &argv)
         limit = atoi(argv[1].c_str());
         if (limit <= 0)
         {
-            CommandRegistry::set_error_info("invalid time parameter '"
+            CommandRegistry *registry = CommandRegistry::GetInstance();
+            registry->set_error_info("invalid time parameter '"
                     + argv[1] + "'");
             return false;
         }
