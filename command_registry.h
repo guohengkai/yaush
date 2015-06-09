@@ -91,9 +91,9 @@ bool CustomBg(const std::string &name,
         const std::vector<std::string> &argv);
 REGISTER_COMMAND(bg, CustomBg, false);
 
-bool CustomImage(const std::string &name,
+bool CustomHistory(const std::string &name,
         const std::vector<std::string> &argv);
-REGISTER_COMMAND(image, CustomImage, false);
+REGISTER_COMMAND(history, CustomHistory, true);
 
 bool CustomLoop(const std::string &name,
         const std::vector<std::string> &argv);

@@ -7,16 +7,19 @@
 #include "readline_handler.h"
 #include <unistd.h>
 #include <string>
+#include <vector>
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "common.h"
 
 using std::string;
+using std::vector;
 
 namespace ghk
 {
 ReadlineHandler::ReadlineHandler(): line_read_(nullptr)
 {
+    using_history();
 }
 
 char* ReadlineHandler::Gets(bool is_reset)
@@ -45,5 +48,24 @@ char* ReadlineHandler::Gets(bool is_reset)
     }
 
     return line_read_;
+}
+
+bool ReadlineHandler::GetHistoryList(vector<string> *history_vec)
+{
+    HIST_ENTRY **his_list;
+    his_list = history_list();
+    if (his_list)
+    {
+        history_vec->clear();
+        for (int i = 0; his_list[i]; ++i)
+        {
+            history_vec->push_back(string(his_list[i]->line));
+        }
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 }  // namespace ghk

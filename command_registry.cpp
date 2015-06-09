@@ -18,6 +18,7 @@
 #include <string>
 #include "error_util.h"
 #include "job_handler.h"
+#include "readline_handler.h"
 
 using std::list;
 using std::map;
@@ -329,9 +330,19 @@ bool CustomBg(const string &name, const vector<string> &argv)
     return true;
 }
 
-bool CustomImage(const string &name, const vector<string> &argv)
+bool CustomHistory(const string &name, const vector<string> &argv)
 {
-    return false;
+    ReadlineHandler handler_;
+    if (argv.size() == 1)  // List all the history
+    {
+        vector<string> his_list;
+        handler_.GetHistoryList(&his_list);
+        for (size_t i = 0; i < his_list.size(); ++i)
+        {
+            printf("%4zu  %s\n", i + 1, his_list[i].c_str());
+        }
+    }
+    return true;
 }
 
 bool CustomLoop(const string &name, const vector<string> &argv)
@@ -340,7 +351,7 @@ bool CustomLoop(const string &name, const vector<string> &argv)
     long long limit;
     if (argv.size() == 1)
     {
-        limit = 100;
+        limit = 10000;
     }
     else
     {
@@ -358,7 +369,7 @@ bool CustomLoop(const string &name, const vector<string> &argv)
     {
         printf("Loop: %lld\n", cnt);
         ++cnt;
-        sleep(1);
+        // sleep(1);
     }
     return true;
 }

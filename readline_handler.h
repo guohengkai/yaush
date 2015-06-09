@@ -7,6 +7,9 @@
 #ifndef YAUSH_READLINE_HANDLER_H_
 #define YAUSH_READLINE_HANDLER_H_
 
+#include <string>
+#include <vector>
+
 namespace ghk
 {
 class ReadlineHandler
@@ -14,6 +17,7 @@ class ReadlineHandler
 public:
     ReadlineHandler();
     char* Gets(bool is_reset);
+    bool GetHistoryList(std::vector<std::string> *history_vec);
 
 private:
     char *line_read_;
