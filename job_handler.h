@@ -9,19 +9,19 @@
 
 #include <string>
 #include <list>
-#include <queue>
 
 namespace ghk
 {
 enum JobStatus
 {
     Running = 0,
-    Stopped
+    Stopped,
+    Done
 };
 
 struct Job
 {
-    std::queue<int> pids;
+    std::list<int> pids;
     JobStatus status;
     std::string cmd;
     int job_num;
@@ -31,8 +31,10 @@ class JobHandler
 {
 public:
     static JobHandler* GetInstance();
-    bool InsertBackgroundJob(const Job &job);
+    int InsertBackgroundJob(const Job &job);
     void CheckBackgroundJobs();
+    void PrintJob(int idx);
+    bool GetJobIterator(int idx, std::list<Job>::iterator *job_iter);
 
     inline int max_idx() { return max_idx_; }
     inline int IncreaseIdx() { return ++max_idx_; }
@@ -45,6 +47,8 @@ public:
 private:
     JobHandler() {}  // Never be instantiated
     char GetJobChar(int idx);
+    std::string GetJobStatus(JobStatus status);
+
     int max_idx_;
     bool is_exit_;
 };

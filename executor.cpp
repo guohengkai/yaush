@@ -75,7 +75,7 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
         int pid = fork();
         if (pid > 0)  // parent
         {
-            current_job.pids.push(pid);
+            current_job.pids.push_back(pid);
         }
         else if (pid == 0)  // child
         {
@@ -185,7 +185,7 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
     else  // foreground
     {
         handler->fg_job = current_job;
-        queue<int> &pid_list = handler->fg_job.pids;
+        auto &pid_list = handler->fg_job.pids;
         while (!pid_list.empty())
         {
             auto pid = pid_list.front();
@@ -203,7 +203,7 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
             {
                 ErrorPrint(ShellError::UnknownError, "waitpid");
             }
-            pid_list.pop();
+            pid_list.pop_front();
         }
 
         if (cmds.size() == 1 && cmds[0].name == EXIT_CMD)

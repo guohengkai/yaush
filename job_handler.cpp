@@ -9,9 +9,11 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <list>
+#include <string>
 #include "error_util.h"
 
 using std::list;
+using std::string;
 
 namespace ghk
 {
@@ -21,11 +23,15 @@ JobHandler* JobHandler::GetInstance()
     return &instance_;
 }
 
-bool JobHandler::InsertBackgroundJob(const Job &job)
+int JobHandler::InsertBackgroundJob(const Job &job)
 {
+    if (bg_jobs.empty())  // Reset job number
+    {
+        max_idx_ = 0;
+    }
     bg_jobs.push_back(job);
     bg_jobs.back().job_num = IncreaseIdx();
-    return true;
+    return bg_jobs.back().job_num;
 }
 
 void JobHandler::CheckBackgroundJobs()
@@ -33,7 +39,7 @@ void JobHandler::CheckBackgroundJobs()
     auto iter = bg_jobs.begin();
     while (iter != bg_jobs.end())
     {
-        auto job = *iter;
+        auto &job = *iter;
         if (job.status == JobStatus::Running)
         {
             while (!job.pids.empty())
@@ -57,13 +63,13 @@ void JobHandler::CheckBackgroundJobs()
                 {
                     ErrorPrint(ShellError::UnknownError, "waitpid");
                 }
-                job.pids.pop();
+                job.pids.pop_front();
             }
 
             if (job.pids.empty())
             {
-                printf("[%d]%c  Done\t\t\t%s\n",
-                        job.job_num, GetJobChar(job.job_num), job.cmd.c_str());
+                job.status = JobStatus::Done;
+                PrintJob(job.job_num);
                 iter = bg_jobs.erase(iter);
             }
             else
@@ -76,6 +82,41 @@ void JobHandler::CheckBackgroundJobs()
             ++iter;
         }
     }
+}
+
+bool JobHandler::GetJobIterator(int idx, list<Job>::iterator *job_iter)
+{
+    auto iter = bg_jobs.begin();
+    while (iter != bg_jobs.end())
+    {
+        if (iter->job_num == idx)
+        {
+            break;
+        }
+        ++iter;
+    }
+
+    if (iter == bg_jobs.end())
+    {
+        return false;
+    }
+
+    *job_iter = iter;
+    return true;
+}
+
+void JobHandler::PrintJob(int idx)
+{
+    list<Job>::iterator job_iter;
+    if (!GetJobIterator(idx, &job_iter))
+    {
+        return;
+    }
+
+    auto job = *job_iter;
+    printf("[%d]%c  %s\t\t\t%s\n",
+            job.job_num, GetJobChar(job.job_num),
+            GetJobStatus(job.status).c_str(), job.cmd.c_str());
 }
 
 char JobHandler::GetJobChar(int idx)
@@ -99,5 +140,20 @@ char JobHandler::GetJobChar(int idx)
         ++iter;
     }
     return ' ';
+}
+
+string JobHandler::GetJobStatus(JobStatus status)
+{
+    switch (status)
+    {
+        case JobStatus::Running:
+            return "Running";
+        case JobStatus::Stopped:
+            return "Stopped";
+        case JobStatus::Done:
+            return "Done";
+        default:
+            return "Unknown";
+    }
 }
 }  // namespace ghk

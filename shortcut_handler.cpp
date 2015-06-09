@@ -8,8 +8,11 @@
 #include <setjmp.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include <queue>
 #include "error_util.h"
 #include "job_handler.h"
+
+using std::queue;
 
 namespace ghk
 {
@@ -42,8 +45,22 @@ bool ShortcutHandler::BindShortcut()
 
 void SignalCtrlZ(int signo, siginfo_t *info, void *context)
 {
+    // BUGS: Vim is abnormal with "Ctrl-Z, fg"
     printf("\n");
     LogDebug("Ctrl-Z is pressed");
+
+    JobHandler *job_handler = JobHandler::GetInstance();
+    Job &job = job_handler->fg_job;
+    job.status = JobStatus::Stopped;
+    int job_num = job_handler->InsertBackgroundJob(job);
+    job.pids.clear();
+    job_handler->PrintJob(job_num);
+
+    // All the background jobs will be stopped too
+    for (auto job: job_handler->bg_jobs)
+    {
+        job.status = JobStatus::Stopped;
+    }
 
     ShortcutHandler *shortcut_handler = ShortcutHandler::GetInstance();
     siglongjmp(shortcut_handler->jmp_buf_ctrlz(), 1);
@@ -59,13 +76,22 @@ void SignalCtrlC(int signo, siginfo_t *info, void *context)
     while (!pid_list.empty())
     {
         auto pid = pid_list.front();
-        int res = kill(pid, SIGINT);
-        printf("kill: %d\n", res);
         int status;
-        int val = waitpid(pid, &status, 0);
-        printf("val: %d\n", val);
-        pid_list.pop();
+        waitpid(pid, &status, 0);
+        pid_list.pop_front();
     }
+
+    // All the background jobs will be terminated too
+    for (auto job: job_handler->bg_jobs)
+    {
+        for (auto pid: job.pids)
+        {
+            int status;
+            kill(pid, SIGKILL);
+            waitpid(pid, &status, 0);
+        }
+    }
+    job_handler->bg_jobs.clear();
 
     ShortcutHandler *shortcut_handler = ShortcutHandler::GetInstance();
     siglongjmp(shortcut_handler->jmp_buf_ctrlc(), 1);
