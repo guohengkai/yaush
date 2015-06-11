@@ -192,6 +192,7 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
     {
         handler->fg_job = current_job;
         auto &pid_list = handler->fg_job.pids;
+        bool is_success = true;
         while (!pid_list.empty())
         {
             auto pid = pid_list.front();
@@ -200,14 +201,21 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
             if (val > 0)
             {
                 LogDebug("process %d is waited successfully", pid);
+                if (!WIFEXITED(status)
+                    || (WIFEXITED(status) && WEXITSTATUS(status) != 0))
+                {
+                    is_success = false;
+                }
             }
             else if (errno == ECHILD)  // pid not found
             {
                 LogDebug("process %d not found", pid);
+                is_success = false;
             }
             else
             {
                 ErrorPrint(ShellError::UnknownError, "waitpid");
+                is_success = false;
             }
             pid_list.pop_front();
         }
@@ -222,6 +230,11 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
                         cmds[0].name + ": " + registry->error_info());
                 return FuncStatus::Error;
             }
+        }
+
+        if (!is_success)
+        {
+            return FuncStatus::Error;
         }
     }
     return FuncStatus::Success;

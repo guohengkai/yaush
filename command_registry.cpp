@@ -344,33 +344,4 @@ bool CustomHistory(const string &name, const vector<string> &argv)
     }
     return true;
 }
-
-bool CustomLoop(const string &name, const vector<string> &argv)
-{
-    long long cnt = 0;
-    long long limit;
-    if (argv.size() == 1)
-    {
-        limit = 10000;
-    }
-    else
-    {
-        limit = atoi(argv[1].c_str());
-        if (limit <= 0)
-        {
-            CommandRegistry *registry = CommandRegistry::GetInstance();
-            registry->set_error_info("invalid time parameter '"
-                    + argv[1] + "'");
-            return false;
-        }
-    }
-
-    while (cnt < limit)
-    {
-        printf("Loop: %lld\n", cnt);
-        ++cnt;
-        // sleep(1);
-    }
-    return true;
-}
 }  // namespace ghk

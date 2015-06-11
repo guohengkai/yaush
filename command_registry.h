@@ -94,10 +94,6 @@ REGISTER_COMMAND(bg, CustomBg, false);
 bool CustomHistory(const std::string &name,
         const std::vector<std::string> &argv);
 REGISTER_COMMAND(history, CustomHistory, true);
-
-bool CustomLoop(const std::string &name,
-        const std::vector<std::string> &argv);
-REGISTER_COMMAND(loop, CustomLoop, false);
 }  // namespace ghk
 
 #endif  // YAUSH_COMMAND_REGISTRY_H_
