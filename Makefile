@@ -4,7 +4,7 @@ INCS :=  $(PREFIX)
 MY_FLAG = -DDEBUG
 CFLAGS := $(MY_FLAG) -Wall -Wunreachable-code -Werror -Wsign-compare -g -fPIC -std=c++11
 LIBS = -lreadline -lncurses
-SOURCE := $(wildcard  *.cpp ../6A/csv_handler.cpp)
+SOURCE := $(wildcard  *.cpp)
 OBJS := $(patsubst %.cpp, %.o, $(SOURCE))
 TARGETS=yaush
 
@@ -16,5 +16,3 @@ $(TARGETS) : $(OBJS)
 	$(CC) $(CFLAGS) $(addprefix -I,$(INCS)) -c $< -o $@
 clean:
 	rm -rf $(TARGETS) $(OBJS)
-test:
-	./$(TARGETS)
