@@ -32,16 +32,26 @@ Executor::Executor()
 
 FuncStatus Executor::Execute(const vector<CommandGroup> &command_list)
 {
+    bool is_execute = true;
     for (auto group: command_list)
     {
-        auto flag = Execute(group.cmd, group.str,
+        FuncStatus flag = FuncStatus::Error;
+        if (is_execute)
+        {
+            flag = Execute(group.cmd, group.str,
                 group.logic == CommandLogic::Background);
+        }
+
         if ((flag == FuncStatus::Success && group.logic == CommandLogic::Or)
                 || (flag == FuncStatus::Error && group.logic == CommandLogic::And))
         {
+            is_execute = false;
             string info = (group.logic == CommandLogic::Or ? "OR" : "AND");
             LogDebug("%s triggered.", info.c_str());
-            return FuncStatus::Success;
+        }
+        else
+        {
+            is_execute = true;
         }
     }
     return FuncStatus::Success;
