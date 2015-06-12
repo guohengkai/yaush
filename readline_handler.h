@@ -16,6 +16,7 @@ class ReadlineHandler
 {
 public:
     ReadlineHandler();
+    ~ReadlineHandler();
     char* Gets(bool is_reset);
     bool GetHistoryList(std::vector<std::string> *history_vec);
 

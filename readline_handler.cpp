@@ -22,6 +22,14 @@ ReadlineHandler::ReadlineHandler(): line_read_(nullptr)
     using_history();
 }
 
+ReadlineHandler::~ReadlineHandler()
+{
+    if (line_read_)
+    {
+        free(line_read_);
+    }
+}
+
 char* ReadlineHandler::Gets(bool is_reset)
 {
     if (line_read_)
