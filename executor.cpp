@@ -196,7 +196,8 @@ FuncStatus Executor::Execute(const vector<Command> &cmds,
 
     if (is_bg)  // background
     {
-        handler->InsertBackgroundJob(current_job);
+        int job_num = handler->InsertBackgroundJob(current_job);
+        handler->PrintJob(job_num);
     }
     else  // foreground
     {

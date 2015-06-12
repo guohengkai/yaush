@@ -81,15 +81,15 @@ REGISTER_COMMAND(exit, CustomExit, true);
 
 bool CustomJobs(const std::string &name,
         const std::vector<std::string> &argv);
-REGISTER_COMMAND(jobs, CustomJobs, false);
+REGISTER_COMMAND(jobs, CustomJobs, true);
 
 bool CustomFg(const std::string &name,
         const std::vector<std::string> &argv);
-REGISTER_COMMAND(fg, CustomFg, false);
+REGISTER_COMMAND(fg, CustomFg, true);
 
 bool CustomBg(const std::string &name,
         const std::vector<std::string> &argv);
-REGISTER_COMMAND(bg, CustomBg, false);
+REGISTER_COMMAND(bg, CustomBg, true);
 
 bool CustomHistory(const std::string &name,
         const std::vector<std::string> &argv);

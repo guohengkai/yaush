@@ -1,12 +1,10 @@
 CC := g++
 PREFIX = .
 INCS :=  $(PREFIX)
-# MY_FLAG = -DDEBUG
 CFLAGS := $(MY_FLAG) -Wall -Wunreachable-code -Werror -Wsign-compare -g -fPIC -std=c++11
-LIBS = -lreadline -lncurses
 SOURCE := $(wildcard  *.cpp)
 OBJS := $(patsubst %.cpp, %.o, $(SOURCE))
-TARGETS=yaush
+TARGETS=loop
 
 all:$(TARGETS)
 $(TARGETS) : $(OBJS)

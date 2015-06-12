@@ -51,13 +51,16 @@ void SignalCtrlZ(int signo, siginfo_t *info, void *context)
 
     JobHandler *job_handler = JobHandler::GetInstance();
     Job &job = job_handler->fg_job;
-    job.status = JobStatus::Stopped;
-    int job_num = job_handler->InsertBackgroundJob(job);
-    job.pids.clear();
-    job_handler->PrintJob(job_num);
+    if (!job.pids.empty())
+    {
+        job.status = JobStatus::Stopped;
+        int job_num = job_handler->InsertBackgroundJob(job);
+        job.pids.clear();
+        job_handler->PrintJob(job_num);
+    }
 
     // All the background jobs will be stopped too
-    for (auto job: job_handler->bg_jobs)
+    for (auto &job: job_handler->bg_jobs)
     {
         job.status = JobStatus::Stopped;
     }
