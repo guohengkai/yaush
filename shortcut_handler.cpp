@@ -45,7 +45,6 @@ bool ShortcutHandler::BindShortcut()
 
 void SignalCtrlZ(int signo, siginfo_t *info, void *context)
 {
-    // BUGS: Vim is abnormal with "Ctrl-Z, fg"
     printf("\n");
     LogDebug("Ctrl-Z is pressed");
 

@@ -8,9 +8,7 @@
 #define YAUSH_YAUSH_H_
 
 #include <string>
-#include <vector>
 #include "common.h"
-#include "readline_handler.h"
 
 namespace ghk
 {
