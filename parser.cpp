@@ -144,7 +144,7 @@ FuncStatus Parser::Parse(const vector<Token> &tokens,
         ErrorPrint(ShellError::InvalidEnd, last_syntax);
         return FuncStatus::Error;
     }
-    else if (stage ==ParseStage::Wait)
+    else if (stage == ParseStage::Wait)
     {
         ErrorPrint(ShellError::InvalidName,
                 redirect_input ? "input" : "output");
